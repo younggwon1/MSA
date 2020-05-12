@@ -115,7 +115,7 @@ Source -> Build -> Test -> Artifact Storage -> Deploy -> Monitor
 
 #### 설정 정보
 
-##### uri: https://github.com/joneconsulting/spring-microservice.git에 있는 정보
+##### uri: https://github.com/joneconsulting/spring-microservice.git 에 있는 정보
 
 ```yaml
 msaconfig:
