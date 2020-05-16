@@ -98,6 +98,26 @@ Source -> Build -> Test -> Artifact Storage -> Deploy -> Monitor
 
 
 
+[12factor 설명](https://12factor.net/ko/)
+
+
+
+### Spring Cloud
+
+> 12요소 어플리케이션의 사상에 부합하는 Java 애플리케이션을 개발할 수 있도록 도와주는 광범위한 영역의 라이브러리들의 집합체이다.
+
+
+
+##### Spring Cloud Netflix 를 구성하는 주요 컴포넌트
+
+- **Config Server** : 환경설정 외부화 담당
+- **Eureka Server** : 서비스 등록 및 탐색(discovery)
+- **Zuul Server** : 프록시 및 게이트웨이 역할
+- **MicroService & Search** : 마이크로서비스 자동등록 및 서비스 탐색의 구현
+- **Spring Cloud Messaging** : 비동기 리액티브 마이크로 서비스 구성
+
+
+
 ### [실습]
 
 #### 시나리오
@@ -107,6 +127,44 @@ Source -> Build -> Test -> Artifact Storage -> Deploy -> Monitor
 
 
 ### Config-Server
+
+> 일반적으로 Spring 기반의 전통적인 애플리케이션을 개발할 때 필요한 환경정보는 모두 프로젝트 소스내에 존재하는 application.properties 나 application.yml 파일로 관리한다.
+>
+> 하지만 점점 더 작은 단위의 애플리케이션으로 쪼개지면서 각각의 환경설정을 담당하는 파일들도 서비스별로 분리되어 관리하기 더 어려워졌다.
+>
+> 또한 환경의 변화주기가 빨라지는 상황에 환경정보를 변경할 때마다 새로 빌드하고 배포해야하는 번거로움이 있다.
+>
+> 따라서 Spring Cloud의 Config Server는 애플리케이션의 환경설정 정보-특히 서비스,비즈니스 로직과 연관성이 있는 정보들을 어플리케이션과 분리해 외부의 컨피그 서버를 통해 관리하도록 해준다.
+
+
+
+- 각 어플리케이션의 환경설정 정보는 git 또는 SVN에 저장된다.
+- Config Server는 git 서버에 접근해서 환경설정 정보를 읽어온다.
+- 각 Config Client (마이크로 서비스)는 Config Server에 접근해서 환경설정 정보를 읽어온다.
+- Config Server의 환경설정을 읽어오기 위한 정보는 bootstrap.properties가 담당한다.
+
+
+
+##### Dependency 추가
+
+- **actuator** : 필수 라이브러리는 아니지만, Config Server 설정 후 Endpoint를 통한 Config Server의 구성 정보나 상태를 확인하기 위해서 필요한 라이브러리. 특히 Config Server를 바라보는 서비스들은 환경설정의 변경상태를 재기동없이 읽어오기 위해서는 actuator가 제공하는 Refresh Endpoint(/actuator/refresh)를 사용
+
+
+
+```xml
+# pom.xml
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-config-server</artifactId>
+</dependency>
+```
+
+
 
 - **@SpringBootApplication** : 공통사항으로 필요, @SpringBootApplication으로 되어있는 클래스를 먼저 기동
 - **@EnableConfigServer** : config 서버의 역할을 한다는 어노테이션
@@ -156,6 +214,8 @@ compile('org.springframework.cloud:spring-cloud-config-server')
 
 
 ### Eureka-Server
+
+> eureka-server는 eureka-client로 등록된 서버들의 정보를 가지고 있다.
 
 - **@SpringBootApplication** : 공통사항으로 필요, @SpringBootApplication으로 되어있는 클래스를 먼저 기동
 - **@EnableEurekaServer** : discovery server(Eureka)가 되기 위해서 사용하는 어노테이션
