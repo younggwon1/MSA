@@ -244,7 +244,7 @@ C:\Users\HPE\work\kafka_2.12-2.3.1>.\bin\windows\kafka-console-producer.bat --br
 4. **Zuul Server (9090)**
 5. **Turbin Server (9999)**
 6. **Hystix Dashboard (7070)**
-7. **Coffee api (8080, 8081, 8082)**
+7. **Coffee api (8080(order), 8081(member), 8082(status))**
 
 
 
@@ -258,8 +258,137 @@ C:\Users\HPE\work\kafka_2.12-2.3.1>.\bin\windows\kafka-console-producer.bat --br
 
 3. ![image](https://user-images.githubusercontent.com/42603919/82019927-0da61a00-96c3-11ea-9a48-c5314a8949e7.png)
 
-   
 
-   
+![image](https://user-images.githubusercontent.com/42603919/82110053-54a11780-9776-11ea-8bf1-22e257837a48.png)
 
-   
+
+
+##### Member Table 생성
+
+```java
+# CoffeeMemberRestController.java
+    
+@RequestMapping(value = "/createMemberTable", method = RequestMethod.PUT)
+public void createMemberTable() {
+    iCoffeeMemberMapper.createMemberTable();
+}
+```
+
+![image](https://user-images.githubusercontent.com/42603919/82108343-d12cf980-9768-11ea-979d-9c3e2e83d150.png)
+
+
+
+##### Member data 삽입
+
+```java
+# CoffeeMemberRestController.java
+    
+@RequestMapping(value = "/insertMemberData", method = RequestMethod.PUT)
+public void insertMemberData() {
+    iCoffeeMemberMapper.insertMemberData();
+}
+```
+
+![image](https://user-images.githubusercontent.com/42603919/82108351-ddb15200-9768-11ea-9a9b-c4aa675189f3.png)
+
+
+
+- http://localhost:8081/console 접속
+- member table이 생성되었고 member가 입력되었음을 확인
+
+![image](https://user-images.githubusercontent.com/42603919/82108436-5b755d80-9769-11ea-9437-584352aacb29.png)
+
+
+
+
+
+##### 주문 처리 상태 확인 테이블 생성
+
+![image](https://user-images.githubusercontent.com/42603919/82108374-f9b4f380-9768-11ea-9d77-8918afc5a688.png)
+
+
+
+- http://localhost:8080/console 접속
+- 주문 처리 상태 확인 테이블이 생성
+
+![image](https://user-images.githubusercontent.com/42603919/82108525-0259f980-976a-11ea-8da1-3119002d738f.png)
+
+
+
+
+
+##### coffee 주문
+
+![image](https://user-images.githubusercontent.com/42603919/82108563-30d7d480-976a-11ea-9756-c2bcb05a40c5.png)
+
+
+
+- 회원 확인 요청
+
+  ![image](https://user-images.githubusercontent.com/42603919/82108578-4947ef00-976a-11ea-9eb3-07f424d8fa7b.png)
+
+  
+
+  - 주문 정보를 메시지큐에 발행 (Order)
+
+  ![image](https://user-images.githubusercontent.com/42603919/82108602-81e7c880-976a-11ea-9bea-d3d989e469ec.png)
+
+  - 커피 주문 마이크로서비스에서 발행한 커피 주문 내역 메시지를 구독 (Status)
+
+<img src="https://user-images.githubusercontent.com/42603919/82108593-6d0b3500-976a-11ea-9f58-2d45a6687e20.png" alt="image" style="zoom:67%;" />
+
+
+
+##### 주문 상태 확인
+
+![image](https://user-images.githubusercontent.com/42603919/82108653-f02c8b00-976a-11ea-8a11-c480f1469470.png)
+
+
+
+##### Hystrix Dashboard에서 확인해보기
+
+![image](https://user-images.githubusercontent.com/42603919/82108670-17835800-976b-11ea-9be4-fdd6822c8011.png)
+
+
+
+![image](https://user-images.githubusercontent.com/42603919/82108687-28cc6480-976b-11ea-9b1e-0b121ee3b07e.png)
+
+
+
+##### Circuit Breaker (fallback)
+
+```java
+# CoffeeMemberRestController.java
+
+    @HystrixCommand(fallbackMethod = "fallbackFunction", commandProperties = {
+            @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",
+                    value="3000"),
+            @HystrixProperty(name="circuitBreaker.errorThresholdPercentage",
+                    value="50"),
+            @HystrixProperty(name="circuitBreaker.requestVolumeThreshold",
+                    value="2"),
+            @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds",
+                    value="5000")
+    })
+    @RequestMapping(value = "/fallbackTest", method = RequestMethod.GET)
+    public String fallbackTest() throws Throwable {
+        throw new Throwable("fallbackTest");
+    }
+
+    public String fallbackFunction(Throwable t) {
+        log.info(t.getMessage());
+        return "fallbackFunction()";
+    }
+```
+
+
+
+![image](https://user-images.githubusercontent.com/42603919/82109252-7945c100-976f-11ea-93a0-d205ee070a8b.png)
+
+
+
+![image](https://user-images.githubusercontent.com/42603919/82109264-8a8ecd80-976f-11ea-915c-375925bfb0b8.png)
+
+
+
+![image](https://user-images.githubusercontent.com/42603919/82109291-a5f9d880-976f-11ea-9f27-dc0012be398a.png)
