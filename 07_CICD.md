@@ -22,7 +22,7 @@
 
 
 
-```
+```powershell
 C:\Users\HPE>vagrant plugin install vagrant-vbguest
 ```
 
@@ -30,7 +30,7 @@ C:\Users\HPE>vagrant plugin install vagrant-vbguest
 
 ##### 다음에 해당하는 디렉토리로 이동한 후 다음 명령어를 실행.
 
-```
+```powershell
 C:\Users\HPE\work\vagrant>vagrant up
 ```
 
@@ -38,7 +38,7 @@ C:\Users\HPE\work\vagrant>vagrant up
 
 ##### 설치 완료 후 jenkins-server에 접속해보기
 
-```
+```powershell
 C:\Users\HPE\work\vagrant>vagrant ssh jenkins-server
 [vagrant@jenkins-server ~]$
 ```
@@ -47,11 +47,11 @@ C:\Users\HPE\work\vagrant>vagrant ssh jenkins-server
 
 ##### jenkins-server에 java 설치하기
 
-```
+```powershell
 [vagrant@jenkins-server ~]$sudo yum -y install java-1.8*
 ```
 
-```
+```powershell
 [vagrant@jenkins-server ~]$find /usr/lib/jvm/java-1.8* | head -n 3
 /usr/lib/jvm/java-1.8.0
 /usr/lib/jvm/java-1.8.0-openjdk
@@ -60,7 +60,7 @@ C:\Users\HPE\work\vagrant>vagrant ssh jenkins-server
 
 - bash_profile vi 편집기에 들어가기
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ vi ~/.bash_profile
 ```
 
@@ -84,19 +84,19 @@ C:\Users\HPE\work\vagrant> vagrant ssh jenkins-server (다시 로그인)
 
 ##### jenkins 설치하기 (jenkins-server에서)
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ sudo yum -y install wget
 ```
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
 ```
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
 ```
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ sudo yum -y install jenkins
 ```
 
@@ -104,15 +104,15 @@ C:\Users\HPE\work\vagrant> vagrant ssh jenkins-server (다시 로그인)
 
 ##### jenkins 시작
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ sudo service jenkins start
 ```
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ sudo chkconfig jenkins on
 ```
 
-```
+```powershell
 [vagrant@jenkins-server ~]$ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
@@ -132,7 +132,7 @@ C:\Users\HPE\work\vagrant> vagrant ssh jenkins-server (다시 로그인)
 
 ##### 설치 완료 후 tomcat-server에 접속해보기
 
-```
+```powershell
 C:\Users\HPE\work\vagrant>vagrant ssh tomcat-server
 [vagrant@tomcat-server ~]$
 ```
@@ -141,11 +141,11 @@ C:\Users\HPE\work\vagrant>vagrant ssh tomcat-server
 
 ##### tomcat-server에 java 설치하기
 
-```
+```powershell
 [vagrant@tomcat-server ~]$sudo yum -y install java-1.8*
 ```
 
-```
+```powershell
 [vagrant@tomcat-server ~]$find /usr/lib/jvm/java-1.8* | head -n 3
 /usr/lib/jvm/java-1.8.0
 /usr/lib/jvm/java-1.8.0-openjdk
@@ -154,7 +154,7 @@ C:\Users\HPE\work\vagrant>vagrant ssh tomcat-server
 
 - bash_profile vi 편집기에 들어가기
 
-```
+```powershell
 [vagrant@tomcat-server ~]$ vi ~/.bash_profile
 ```
 
@@ -176,28 +176,28 @@ C:\Users\HPE\work\vagrant> vagrant ssh tomcat-server (다시 로그인)
 
 ##### apache-tomcat 설치하기 (tomcat-server에서)
 
-```
+```powershell
 [vagrant@tomcat-server ~]$ sudo yum -y install wget
 ```
 
-```
+```powershell
 [vagrant@tomcat-server ~]$ sudo wget http://mirror.navercorp.com/apache/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35
 .tar.gz
 ```
 
-```
+```powershell
 [vagrant@tomcat-server ~]$ sudo mkdir -p /usr/local/tomcat
 ```
 
-```
+```powershell
 [vagrant@tomcat-server ~]$ sudo mv apache-tomcat-9.0.35.tar.gz /usr/local/tomcat
 ```
 
-```
+```powershell
 [vagrant@tomcat-server ~]$ cd /usr/local/tomcat
 ```
 
-```
+```powershell
 [vagrant@tomcat-server tomcat]$ sudo tar -xvzf apache-tomcat-9.0.35.tar.gz
 ```
 
@@ -205,11 +205,11 @@ C:\Users\HPE\work\vagrant> vagrant ssh tomcat-server (다시 로그인)
 
 ##### apache-tomcat 시작
 
-```
+```powershell
 [vagrant@tomcat-server tomcat]$ cd apache-tomcat-9.0.35/
 ```
 
-```
+```powershell
 [vagrant@tomcat-server apache-tomcat-9.0.35]$ sudo ./bin/startup.sh
 ```
 
@@ -221,36 +221,43 @@ C:\Users\HPE\work\vagrant> vagrant ssh tomcat-server (다시 로그인)
 
 ##### Tomcat Manager 설정 (403 Error 해결)
 
-1. 
+1. **tomcat-users.xml** 수정
 
-```
+- sudo find ./ -name tomcat-users.xml (파일 위치 찾기)
+
+```powershell
 [vagrant@tomcat-server ~]$ cd /usr/local/tomcat/apache-tomcat-9.0.35
 ```
 
-```
+```powershell
 [vagrant@tomcat-server apache-tomcat-9.0.35]$ sudo vi conf/tomcat-users.xml
 ```
 
-```
+```xml
 # 추가
 
 <tomcat-users>
   <role rolename="manager-gui"/>
+  <role rolename="manager-jmx"/>
   <role rolename="manager-script"/>
   <role rolename="manager-status"/>
-  <user username="tomcat" password="tomcat" roles="manager-gui,manager-script,manager-status"/>
+  <user username="admin" password="admin" roles="manager-gui,manager-jmx,manager-script,manager-status"/>
+  <user username="deployer" password="deployer" roles="manager-script"/>
+  <user username="tomcat" password="tomcat" roles="manager-gui"/>
 </tomcat-users>
 ```
 
 
 
-2. 
+2. **context.xml** 수정
 
-```
+- sudo find ./ -name context.xml (파일 위치 찾기)
+
+```powershell
 [vagrant@tomcat-server apache-tomcat-9.0.35]$ sudo vi /usr/local/tomcat/apache-tomcat-9.0.35/webapps/manager/META-INF/context.xml
 ```
 
-```
+```xml
 <Context antiResourceLocking="false" privileged="true" >
 <!--  
          <Valve className="org.apache.catalina.valves.RemoteAddrValve"
@@ -263,18 +270,20 @@ C:\Users\HPE\work\vagrant> vagrant ssh tomcat-server (다시 로그인)
 
 http://localhost:28080/manager/ 로 접속하면 **Tomcat 웹 애플리케이션 매니저**가 보이게 된다.
 
+
+
 ---
 
 
 
 ##### jenkins와 tomcat server 띄우기
 
-```
+```powershell
 C:\Users\HPE\work\vagrant>vagrant ssh jenkins-server
 [vagrant@jenkins-server ~]$
 ```
 
-```
+```powershell
 C:\Users\HPE\work\vagrant>vagrant ssh tomcat-server
 [vagrant@tomcat-server ~]$
 ```
@@ -283,7 +292,7 @@ C:\Users\HPE\work\vagrant>vagrant ssh tomcat-server
 
 ##### Server간 접속 연동하기 (다른 host로 접속)
 
-```
+```powershell
 [vagrant@docker-server ~]$ sudo vi /etc/ssh/sshd_config
 [vagrant@jenkins-server ~]$ sudo vi /etc/ssh/sshd_config
 [vagrant@tomcat-server ~]$ sudo vi /etc/ssh/sshd_config
@@ -291,7 +300,7 @@ C:\Users\HPE\work\vagrant>vagrant ssh tomcat-server
 
 ![image](https://user-images.githubusercontent.com/42603919/82635605-7d745180-9c3b-11ea-88ae-64954f583238.png)
 
-```
+```powershell
 [vagrant@docker-server ~]$ sudo systemctl restart sshd
 [vagrant@jenkins-server ~]$ sudo systemctl restart sshd
 [vagrant@tomcat-server ~]$ sudo systemctl restart sshd
@@ -303,7 +312,7 @@ C:\Users\HPE\work\vagrant>vagrant ssh tomcat-server
 sudo vi /etc/hosts
 
 # 각각의 Host에 자신을 제외한 나머지를 입력한다.
-192.168.56.12 jenkins-server
+192.168.56.11 jenkins-server
 
 192.168.56.12 tomcat-server
 
@@ -311,6 +320,20 @@ sudo vi /etc/hosts
 ```
 
 
+
+##### 업로드 작업(배포 작업)
+
+1. github에 작업할 repository를 생성
+
+<img src="https://user-images.githubusercontent.com/42603919/82782751-0edfff80-9e98-11ea-9c0a-08b344b1677e.png" alt="image" style="zoom:67%;" />
+
+
+
+2. 새로운 item 만들기 (jenkins)
+
+   - jenkins관리 -> 플러그인 설치 (**github(github, integration), maven(invoke, integration)**) -> 재시작없이 설치
+
+   ![image](https://user-images.githubusercontent.com/42603919/82783955-8b73dd80-9e9a-11ea-8c33-cb32d13b8536.png)
 
 
 
