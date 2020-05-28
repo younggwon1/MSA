@@ -116,9 +116,7 @@ C:\Users\HPE\work\vagrant> vagrant ssh jenkins-server (다시 로그인)
 [vagrant@jenkins-server ~]$ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
-
-
-<img src="C:\Users\HPE\AppData\Roaming\Typora\typora-user-images\image-20200522140442291.png" alt="image-20200522140442291"/>
+![image](https://user-images.githubusercontent.com/42603919/82849201-cc6b0100-9f31-11ea-9aa6-b236f9b49ae8.png)
 
 
 
@@ -331,9 +329,151 @@ sudo vi /etc/hosts
 
 2. 새로운 item 만들기 (jenkins)
 
-   - jenkins관리 -> 플러그인 설치 (**github(github, integration), maven(invoke, integration)**) -> 재시작없이 설치
+   - jenkins관리 -> 플러그인 설치 (**github(github, integration), maven(invoker, integration), Deploy to(deploy to container)**) -> 재시작없이 설치
 
-   ![image](https://user-images.githubusercontent.com/42603919/82783955-8b73dd80-9e9a-11ea-8c33-cb32d13b8536.png)
+
+
+##### jenkins, tomcat server에 git 설치하기
+
+```powershell
+[vagrant@jenkins-server ~]$ sudo yum install git -y
+[vagrant@tomcat-server ~]$ sudo yum install git -y
+```
+
+
+
+##### jenkins, tomcat server에 maven 설치하기
+
+```powershell
+[vagrant@jenkins-server ~]$ sudo yum install maven -y
+[vagrant@tomcat-server ~]$ sudo yum install maven -y
+```
+
+
+
+##### Git, add maven
+
+- Global tool configuration
+
+![image](https://user-images.githubusercontent.com/42603919/82849980-6f714a00-9f35-11ea-9426-53d9c32b3eaf.png)
+
+
+
+![image](https://user-images.githubusercontent.com/42603919/82850389-2fab6200-9f37-11ea-9ab5-46823a8deb7e.png)
+
+##### git과 maven이 설치됨
+
+
+
+---
+
+
+
+##### [Maven Project 시작]
+
+![image-20200526095744344](C:\Users\HPE\AppData\Roaming\Typora\typora-user-images\image-20200526095744344.png)
+
+- 소스 코드 관리
+
+![image](https://user-images.githubusercontent.com/42603919/82850543-cf68f000-9f37-11ea-8120-ec8b73fd80ed.png)
+
+- Build
+
+![image](https://user-images.githubusercontent.com/42603919/82850742-84031180-9f38-11ea-84fa-1e8ee3bfa566.png)
+
+##### Apply -> 저장 ->  -> Build Now
+
+
+
+##### github에 올라가 있는 project를 빌드하여 다음과 같이 보인다.
+
+```powershell
+[vagrant@jenkins-server ~]$ cd /var/lib/jenkins/workspace/My_First_Maven_Build
+[vagrant@jenkins-server My_First_Maven_Build]$ ls -al
+total 16
+drwxr-xr-x. 5 jenkins jenkins   96 May 26 01:02 .
+drwxr-xr-x. 4 jenkins jenkins   58 May 26 01:02 ..
+-rw-r--r--. 1 jenkins jenkins  202 May 26 01:02 Dockerfile
+drwxr-xr-x. 8 jenkins jenkins  162 May 26 01:06 .git
+-rw-r--r--. 1 jenkins jenkins 5969 May 26 01:02 pom.xml
+-rw-r--r--. 1 jenkins jenkins   38 May 26 01:02 README.md
+drwxr-xr-x. 4 jenkins jenkins   46 May 26 01:07 server
+drwxr-xr-x. 4 jenkins jenkins   46 May 26 01:07 webapp
+```
+
+
+
+##### war,jar 파일이 있으면 project build를 할 수 있다.
+
+```powershell
+[vagrant@jenkins-server My_First_Maven_Build]$ cd webapp/target
+[vagrant@jenkins-server target]$ ls -al
+total 4
+drwxr-xr-x. 5 jenkins jenkins   76 May 26 01:08 .
+drwxr-xr-x. 4 jenkins jenkins   46 May 26 01:07 ..
+drwxr-xr-x. 2 jenkins jenkins   28 May 26 01:08 maven-archiver
+drwxr-xr-x. 2 jenkins jenkins    6 May 26 01:08 surefire
+drwxr-xr-x. 4 jenkins jenkins   54 May 26 01:08 webapp
+-rw-r--r--. 1 jenkins jenkins 2525 May 26 01:08 webapp.war
+```
+
+
+
+---
+
+
+
+##### tomcat-server에서 user는 deployer를 사용한다. (tomcat server에 배포)
+
+- 동일하게 item을 생성한 후 소스 코드 관리, Build를 작성한다. 여기서 추가로 **빌드 후 조치**를 작성한다.
+
+![image](https://user-images.githubusercontent.com/42603919/82851690-8b77ea00-9f3b-11ea-90a5-d1c9e8185907.png)
+
+- jenkins -> tomcat으로 war 파일을 복사하고 싶다. (jenkins입장에서 tomcat ip address(192.168.56.12)를 작성해야한다.)
+
+![image](https://user-images.githubusercontent.com/42603919/82851962-6fc11380-9f3c-11ea-8457-cadd9d638d95.png)
+
+- tomcat에 잘 복사된 것을 확인할 수 있다.
+
+![image](https://user-images.githubusercontent.com/42603919/82852108-e78f3e00-9f3c-11ea-8849-318081481ff4.png)
+
+```powershell
+[vagrant@tomcat-server ~]$ cd /usr/local/tomcat/apache-tomcat-9.0.35
+[vagrant@tomcat-server apache-tomcat-9.0.35]$ ls -al
+total 128
+drwxr-xr-x. 9 root root   220 May 22 07:20 .
+drwxr-xr-x. 3 root root    69 May 22 07:20 ..
+drwxr-x---. 8 root root   113 May 26 01:34 webapps
+```
+
+- 다음 웹 페이지에서 작업을 실시한다.
+
+![image](https://user-images.githubusercontent.com/42603919/82852163-160d1900-9f3d-11ea-8e1d-bbb1b1df6e72.png)
+
+##### 주기적인 build 적용해보기
+
+[crontab](https://jdm.kr/blog/2)
+
+- hello-world/webapp/src/main/webapp/index.jsp를 다음과 같이 수정
+
+```jsp
+<h1> Hello, Welcome to Simple DevOps Project !!   </h1>
+<h2> Hi there!! Glad to see you here! </h2>
+```
+
+- 빌드 유발 설정
+
+![image](https://user-images.githubusercontent.com/42603919/82853675-54a4d280-9f41-11ea-8801-c5d3bf6bbcf4.png)
+
+- 값이 바뀌는 것을 확인
+
+![image](https://user-images.githubusercontent.com/42603919/82853914-f1677000-9f41-11ea-8f1a-86c2cb4eb13e.png)
+
+
+
+---
+
+
 
 
 
@@ -354,3 +494,133 @@ sudo vi /etc/hosts
 ![image](https://user-images.githubusercontent.com/42603919/82636956-be219a00-9c3e-11ea-9d35-a2b9b88ec513.png)
 
 ![image](https://user-images.githubusercontent.com/42603919/82637238-4c961b80-9c3f-11ea-9d42-2aa4776a5c96.png)
+
+
+
+##### VM에서 접근할 수 있도록 하는 방법
+
+1. 
+
+```powershell
+C:\Users\HPE\work\vagrant>vagrant ssh-config jenkins-server
+Host jenkins-server
+  HostName 127.0.0.1
+  User vagrant
+  Port 19211
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile C:/Users/HPE/work/vagrant/.vagrant/machines/jenkins-server/virtualbox/private_key
+  IdentitiesOnly yes
+  LogLevel FATAL
+
+
+C:\Users\HPE\work\vagrant>ssh -p 22 -i C:/Users/HPE/work/vagrant/.vagrant/machines/jenkins-server/virtualbox/private_key vagrant@192.168.56.11
+The authenticity of host '192.168.56.11 (192.168.56.11)' can't be established.
+ECDSA key fingerprint is SHA256:2MaJs7uadeGFSm8DhBCKkmPnUFcEJYaEtWmjikJrtac.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '192.168.56.11' (ECDSA) to the list of known hosts.
+Last login: Tue May 26 00:14:04 2020 from 10.0.2.2
+[vagrant@jenkins-server ~]$
+```
+
+
+
+2. 
+
+```powershell
+C:\Users\HPE\work\vagrant>ssh -p 19211 -i C:/Users/HPE/work/vagrant/.vagrant/machines/jenkins-server/virtualbox/private_key vagrant@127.0.0.1
+The authenticity of host '[127.0.0.1]:19211 ([127.0.0.1]:19211)' can't be established.
+ECDSA key fingerprint is SHA256:2MaJs7uadeGFSm8DhBCKkmPnUFcEJYaEtWmjikJrtac.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '[127.0.0.1]:19211' (ECDSA) to the list of known hosts.
+Last login: Thu May 28 00:28:27 2020 from 192.168.56.1
+[vagrant@jenkins-server ~]$
+```
+
+
+
+##### Docker 실행
+
+```powershell
+[vagrant@docker-server ~]$ sudo systemctl start docker
+```
+
+```powershell
+[vagrant@docker-server ~]$ sudo useradd dockeradmin
+[vagrant@docker-server ~]$ sudo passwd dockeradmin
+[vagrant@docker-server ~]$ usermod -aG docker dockeradmin
+[vagrant@docker-server ~]$ su - dockeradmin
+```
+
+```powershell
+[dockeradmin@docker-server ~]$ docker pull tomcat:latest
+[dockeradmin@docker-server ~]$ docker run -d --rm name tomcat-container --p 8080:8080 tomcat:8
+```
+
+- jenkins에 접속하여 다음과 같은 작업 실시
+
+![image](https://user-images.githubusercontent.com/42603919/83089716-f824ed00-a0d1-11ea-98db-8d8777b07f99.png)
+
+<img src="https://user-images.githubusercontent.com/42603919/83089191-afb8ff80-a0d0-11ea-84ee-7f82fdf65275.png" alt="image" style="zoom:67%;" />
+
+##### 빌드 후 조치
+
+**send build artifacts over SSH** 클릭
+
+- Source file : webapp/target/*.war
+
+- Remove prefix : webapp/target
+
+- Excute Command (자동 배포), 밑에 vi Dockerfile부분을 한 다음 docker image를 지우고 다음을 실행
+
+  ```
+  cd /home/dockeradmin;docker build -t hello-project .;docker run -d --name hello-container -p 8080:8080 hello-project
+  ```
+
+
+
+##### docker image를 확인해보면 생성된 것을 확인할 수 있다.
+
+http://localhost:38080/webapp 에 접속해보기
+
+- jenkins에서 작성했던 내용이 보인다.
+
+
+
+##### vi Dockerfile(tomcat)
+
+```dockerfile
+FROM tomcat:latest
+COPY ./webapp.war /usr/local/tomcat/webapp
+```
+
+```powershell
+[dockeradmin@docker-server ~]$ docker build -t hello-project .
+```
+
+```powershell
+[dockeradmin@docker-server ~]$ docker run -d --name hello-container -p 8080:8080 hello-project
+```
+
+- http://localhost:38080/webapp 에 접속해보기
+  - jenkins에서 작성했던 내용이 보인다.
+
+
+
+
+
+---
+
+##### Maven image로 배포
+
+[Docker Maven image](https://hub.docker.com/_/maven)
+
+```dockerfile
+FROM maven:3-openjdk-8-slim
+COPY ./webapp.war /usr/src/webapp.jar
+ENTRYPOINT ["java", "-jar", "webapp.jar"]
+//ENTRYPOINT ["mvn", "spring-boot:run"]
+```
+
+---
