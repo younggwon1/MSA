@@ -111,7 +111,10 @@ EOF
 ```
 $ yum update
 ```
-
+yum update에 오류가 발생한다면 다음을 입력하고 yum update를 
+```
+curl -v "http://mirrorlist.centos.org/?repo=os&arch=x86_64&release=7"
+```
 - Hosts 파일 수정
 
 ```
