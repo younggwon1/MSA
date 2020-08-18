@@ -111,7 +111,7 @@ EOF
 ```
 $ yum update
 ```
-yum update에 오류가 발생한다면 다음을 입력하고 yum update를 
+yum update에 오류가 발생한다면 다음을 입력하고 yum update
 ```
 curl -v "http://mirrorlist.centos.org/?repo=os&arch=x86_64&release=7"
 ```
