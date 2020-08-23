@@ -109,7 +109,7 @@ EOF
 - Centos Update
 
 ```
-$ yum update
+$ yum update -y
 ```
 yum update에 오류가 발생한다면 다음을 입력하고 yum update
 ```
